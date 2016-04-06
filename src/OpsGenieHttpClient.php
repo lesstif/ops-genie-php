@@ -19,7 +19,9 @@ class OpsGenieHttpClient extends HttpClient
 	 */
 	public function createAlert($message, Request $request)
 	{
-		$json = $request->jsonSerialize();
+		$json = $request->toArray();
+		$json['message'] = $message;
+
 		return $this->send('alert', $json);
 	}
 }

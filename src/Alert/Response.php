@@ -18,7 +18,7 @@ class Alert implements \JsonSerializable
 
     public function jsonSerialize()
     {
-        $vars = (get_object_vars($this));
+        $vars = array_filter(get_object_vars($this));
 
 		return $vars;
     }

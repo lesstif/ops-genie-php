@@ -1,13 +1,14 @@
 <?php
 
 namespace Lesstif\OpsGenie\Alert;
+use Lesstif\OpsGenie\Arrayable;
 
 /**
  * Alert Request Class
  *
  * @package Lesstif\OpsGenie
  */
-class Request implements \JsonSerializable
+class Request implements Arrayable //\JsonSerializable
 {
     /* @var array */
     public $teams;
@@ -72,9 +73,21 @@ class Request implements \JsonSerializable
      */
     public $note;
 
+    /**
+     * class to array
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $ar =  (array) array_filter(get_object_vars($this));
+
+        return $ar;
+    }
+
     public function jsonSerialize()
     {
-        $vars = (get_object_vars($this));
+        $vars = array_filter(get_object_vars($this));
 
         return $vars;
     }

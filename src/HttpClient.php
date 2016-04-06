@@ -2,15 +2,30 @@
 
 namespace Lesstif\OpsGenie;
 
-use Log;
+use Monolog\Logger as Logger;
+use Monolog\Handler\StreamHandler;
 
 class HttpClient
 {
+	/**
+	 * Monolog instance
+	 *
+	 * @var \Monolog\Logger
+	 */
+	protected $log;
+
 	use EnvTrait;
 
 	public function __construct($path = null)
 	{
 		$this->envLoad($path);
+
+		// create logger
+		$this->log = new Logger('OpsGenieClient');
+		$this->log->pushHandler(new StreamHandler(
+			"OpsGenieClient.txt",
+				Logger::DEBUG)
+		);
 	}
 
 	/**
@@ -58,23 +73,26 @@ class HttpClient
             'timeout'  => 10.0,
             'verify' => false,
             ]);
-		
-		$postData['headers'] = ['apiKey' => $this->token];
 
-		$postData['json'] = $body;
+		$postData = $body;
 
-		Dumper::dump($postData);
-		Dumper::dd($postData);
+		$postData['apiKey'] = $this->token;
+
+		//$postData = json_encode($postData);
 
 		if ($this->debug) {
-			$postData['debug'] = fopen(__DIR__ . '/' . 'debug.txt', 'w');
-		}		
+			$this->log->addDebug("postData:", $postData);
+		}
+
+		Dumper::dump($postData);
 
 		$request = new \GuzzleHttp\Psr7\Request($method, $this->host . $this->url . $uri);
 
 		$response = null;
 		try{
-			$response = $client->send($request, $postData);
+			$response = $client->send($request, [
+				'json' => $postData,
+			]);
 		} catch (GuzzleHttp\Exception\ClientException $e) {
 			dump($response);
 		    echo $e->getRequest();

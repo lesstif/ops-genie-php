@@ -12,11 +12,12 @@ class AlertTest extends PHPUnit_Framework_TestCase
         $req = new \Lesstif\OpsGenie\Alert\Request();
 
         $req->user = "lesstif@gmail.com";
+        $req->teams = ['ops_team',];
 
         try {
             $oc = new OpsGenieHttpClient;
 
-            $oc->createAlert('alert test', $req);
+            $oc->createAlert('Wake up. Web Server 123 is down', $req);
 
         } catch (OpsGenieException $e) {
             $this->assertTrue(false, $e->getMessage());
