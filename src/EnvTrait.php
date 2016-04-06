@@ -23,9 +23,10 @@ trait EnvTrait {
 	public function envLoad($path = null)
 	{
 		if (empty($path))
-			$path = base_path();
+			$path = __DIR__ . '/..';
 
-		$dotenv = \Dotenv::load($path);
+		$dotenv = new \Dotenv\Dotenv($path);
+		$dotenv->load();
 
         $this->host  = str_replace("\"", "", getenv('API_HOST'));
 		$this->url  = str_replace("\"", "", getenv('API_URL'));

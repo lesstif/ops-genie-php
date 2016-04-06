@@ -52,3 +52,6 @@ Session.vim
 # auto-generated tag files
 tags
 
+##
+.env
+debug.txt

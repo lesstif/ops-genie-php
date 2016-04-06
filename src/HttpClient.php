@@ -14,12 +14,12 @@ class HttpClient
 	}
 
 	/**
-	 * performing gitlab api request
+	 * performing opsgenie api request
 	 *
 	 * @param $uri API uri
 	 * @return type json response
 	 */
-	public function request($uri)
+	public function request($uri, $data = [])
 	{
 		$client = new \GuzzleHttp\Client([
             'base_uri' => $this->host,
@@ -29,14 +29,14 @@ class HttpClient
 
         $response = $client->get($this->host . $this->url . $uri, [
             'query' => [
-                'private_token' => $this->gitToken,
+                'private_token' => $this->token,
                 'per_page' => 10000
             ],
         ]);
 
         if ($response->getStatusCode() != 200)
         {
-        	throw GitlabException("Http request failed. status code : "
+        	throw OpsGenieException("Http request failed. status code : "
         		. $response->getStatusCode() . " reason:" . $response->getReasonPhrase());
         }
 
@@ -44,31 +44,35 @@ class HttpClient
 	}
 
 	/**
-	 * performing gitlab api request
+	 * performing opsgenie api request
 	 *
 	 * @param $uri API uri
 	 * @param $body body data
 	 * 
 	 * @return type json response
 	 */
-	public function send($uri, $body, $method = 'POST')
+	public function send($uri, $body, $method = 'POST', $extraHeader = [])
 	{
 		$client = new \GuzzleHttp\Client([
-            'base_uri' => $this->gitHost,
+            'base_uri' => $this->host,
             'timeout'  => 10.0,
             'verify' => false,
             ]);
 		
-		$postData['headers'] = ['PRIVATE-TOKEN' => $this->gitToken];
+		$postData['headers'] = ['apiKey' => $this->token];
 
 		$postData['json'] = $body;
 
+		Dumper::dump($postData);
+		Dumper::dd($postData);
+
 		if ($this->debug) {
-			$postData['debug'] = fopen(base_path() . '/' . 'debug.txt', 'w');
+			$postData['debug'] = fopen(__DIR__ . '/' . 'debug.txt', 'w');
 		}		
 
-		$request = new \GuzzleHttp\Psr7\Request($method, $this->gitHost . $this->url . $uri);
+		$request = new \GuzzleHttp\Psr7\Request($method, $this->host . $this->url . $uri);
 
+		$response = null;
 		try{
 			$response = $client->send($request, $postData);
 		} catch (GuzzleHttp\Exception\ClientException $e) {
